@@ -93,24 +93,20 @@ Shader "Unlit/Shader 1 Unlit"
                 float edge = (soften)? radius * 0.005:0.0;
                 return 1 - smoothstep(radius - edge, radius + edge, length(p));
             }
-            
+
             fixed4 frag (v2f i) : SV_Target
             {
-                float2 center = _Anchor.zw;
-                //fixed2 pos = frac(i.uv * _TileCount);
-                fixed2 pos = frac(i.position * _TileCount);
-                float2 size = _Size;
-                float2x2 matr = getRotationMatrix(_Time.y);
-                float2x2 mats = getScaleMatrix(sin(_Time.y +1)/3 +0.5);
-
-                float2x2 mat = mul(matr, mats);
-
-                float2 pt = mul(mat, pos - center) + center;
-
-                fixed3 color = _Color * rect(pt, _Anchor.xy, size, center);
+                fixed3 color = i.position * _PositionMultiplier;
                 if(CheckCondition(i.position))
-                    return fixed4(0,0,1,1);
-                return fixed4(color, 1.0);
+                {
+                    color = fixed3(0,0,1);
+                }
+                else
+                {
+                    color.r = step(0, color.r);
+                    color.g = step(0, color.g);
+                }
+                return fixed4(color, 1);
             }
             ENDCG
         }
